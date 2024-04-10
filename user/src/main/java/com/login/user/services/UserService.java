@@ -42,7 +42,16 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usersRepository.findByLogin(username);
+        User user = usersRepository.findByLogin(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+        
+        return org.springframework.security.core.userdetails.User
+            .withUsername(user.getUsername())
+            .password(user.getPassword())
+            .roles("USER")
+            .build();
     }
 
     public Optional<User> updateUser(UUID id, UserDto userDto) {
