@@ -2,6 +2,7 @@ package com.login.user.services;
 
 import com.login.user.dtos.UserDto;
 import com.login.user.models.User;
+import com.login.user.models.UserRole;
 import com.login.user.repositories.UsersRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,8 @@ public class UserService implements UserDetailsService {
         return usersRepository.findAll();
     }
 
-    public Optional<User> getUserById(UUID id) {
-        return usersRepository.findById(id);
+    public User getUserByLogin(String login) {
+        return usersRepository.findByLogin(login);
     }
 
     public User registerUser(UserDto userDto) {
@@ -37,6 +38,7 @@ public class UserService implements UserDetailsService {
 
         String hashedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
         user.setPassword(hashedPassword);
+        user.setRole(UserRole.ADMIN);
         return usersRepository.save(user);
     }
 
@@ -80,4 +82,3 @@ public class UserService implements UserDetailsService {
         return passwordEncoder.encode(password);
     }
 }
-

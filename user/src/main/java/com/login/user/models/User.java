@@ -1,9 +1,11 @@
 package com.login.user.models;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
@@ -23,15 +25,19 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column (name="id")
     private UUID id;
-    @Column (name="name")
     private String name;
-    @Column (name="mail")
     private String mail;
-    @Column (name="login")
     private String login;
-    @Column (name="password")
     private String password;
+    private UserRole role;
     
+    
+    public UserRole getRole() {
+        return role;
+    }
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
     public UUID getId() {
         return id;
     }
@@ -62,7 +68,8 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        if(this.role == UserRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+        else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
     @Override
     public String getUsername() {

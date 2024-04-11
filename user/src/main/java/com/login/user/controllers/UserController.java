@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -33,16 +34,6 @@ public class UserController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
-    
-    @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid AuthenticationDto data) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
-        var auth = this.authenticationManager.authenticate(usernamePassword);
-        
-        var token = tokenService.generateToken((User) auth.getPrincipal());
-
-        return ResponseEntity.ok(new LoginResponseDto(token));
-    }
 
     @GetMapping("/users")
     public ResponseEntity<Object> getAllUsers() {
@@ -50,12 +41,15 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable UUID id) {
-        Optional<User> optionalUser = userService.getUserById(id);
-        return optionalUser.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<User> getUser(@PathVariable String login) {
+        User user = userService.getUserByLogin(login);
+        if(user != null){
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/registerUser")
+    @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@Valid @RequestBody UserDto userDto, BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(validationErrors(result));
@@ -67,6 +61,24 @@ public class UserController {
         } else {
             return ResponseEntity.badRequest().body("O email já está em uso");
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody @Valid AuthenticationDto data) {
+        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
+        var auth = this.authenticationManager.authenticate(usernamePassword);
+            
+        if (auth.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            User user = userService.getUserByLogin(userDetails.getUsername());
+            if (user != null) {
+                var token = tokenService.generateToken(user);
+                return ResponseEntity.ok(new LoginResponseDto(token));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/editUser/{id}")
