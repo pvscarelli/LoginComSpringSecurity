@@ -36,7 +36,6 @@ public class UserController {
     @Autowired
     private TokenService tokenService;
 
-
     @Operation(description = "Busca todos os usuários no repositório")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retorna todos os usuários"),
@@ -56,7 +55,7 @@ public class UserController {
         @ApiResponse(responseCode = "200", description = "Retorna o usuário procurado"),
         @ApiResponse(responseCode = "404", description = "Não existe nenhum usuário salvo com esse login")
     })
-    @GetMapping("/users/{id}")
+    @GetMapping("/users/{login}")
     public ResponseEntity<User> getUser(@PathVariable String login) {
         User user = userService.getUserByLogin(login);
         if(user != null){
@@ -68,7 +67,7 @@ public class UserController {
     @Operation(description = "Faz o registro de um usuário no banco de dados")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Retorna o usuário criado"),
-        @ApiResponse(responseCode = "400", description = "Retorna os erros do formulário caso tenha algum campo inválido, ou retorna junto a mensagem \"E-mail já esta em uso\"")
+        @ApiResponse(responseCode = "400", description = "Retorna os erros do formulário caso tenha algum campo inválido, ou retorna junto a mensagem \"E-mail ou login duplicado\"")
     })
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@Valid @RequestBody UserDto userDto, BindingResult result) {
@@ -81,7 +80,7 @@ public class UserController {
             return ResponseEntity.created(URI.create("/users/" + savedUser.getId())).build();
         } else {
             Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("error", "O email já está em uso.");
+            responseBody.put("error", "E-mail ou login duplicado.");
             return ResponseEntity.badRequest().body(responseBody);
         }
     }
@@ -125,7 +124,21 @@ public class UserController {
     public ResponseEntity<Object> deleteUser(@PathVariable("id") UUID id) {
         boolean deleted = userService.deleteUser(id);
         if(deleted){
-            ResponseEntity.ok().build();
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @Operation(description = "Deleta todos os usuários cadastrados")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Todos os usuários foram deletados com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Não foi possível excluir todos os usuários")
+    })
+    @DeleteMapping("/deleteAllUsers")
+    public ResponseEntity<Object> deleteAllUsers() {
+        boolean deleted = userService.deleteAllUsers();
+        if(deleted){
+           return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
     }

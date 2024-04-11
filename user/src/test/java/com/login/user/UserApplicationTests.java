@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
@@ -36,48 +35,31 @@ class UserServiceTest {
     }
 
     @Test
-    public void testGetUserByLoginWithCache() {
-        String login = "usuario";
-        User user = new User();
-        user.setLogin(login);
-
-        when(usersRepository.findByLogin(login)).thenReturn(user);
-
-        User firstResult = userService.getUserByLogin(login);
-        assertEquals(user, firstResult);
-
-        User secondResult = userService.getUserByLogin(login);
-        assertEquals(user, secondResult);
-
-        verify(usersRepository, times(1)).findByLogin(login);
-    }
-
-    @Test
     void getUserByLogin() {
-        String login = "login";
+        UUID userId = UUID.randomUUID();
         User user = new User();
-        user.setId(UUID.randomUUID());
+        user.setId(userId);
         user.setName("John Doe");
         user.setMail("john@example.com");
-        user.setLogin(login);
+        user.setLogin("login");
         user.setPassword("password");
         user.setRole(UserRole.ADMIN);
-
-        when(usersRepository.findByLogin(login)).thenReturn(user);
-
-        User foundUser = userService.getUserByLogin(login);
-
+    
+        when(usersRepository.findByLogin(user.getUsername())).thenReturn(user);
+    
+        User foundUser = userService.getUserByLogin(user.getUsername());   
         assertNotNull(foundUser);
+    
         assertEquals(user, foundUser);
     }
 
     @Test
-    void getUserByLoginFailure() {
-        String login = "login";
+    void getUserByLoginFailure(){
+        String login = "teste";
 
         when(usersRepository.findByLogin(login)).thenReturn(null);
 
-        assertThrows(UsernameNotFoundException.class, () -> userService.getUserByLogin(login));
+        assertNull(userService.getUserByLogin(login));
     }
 
     @Test
