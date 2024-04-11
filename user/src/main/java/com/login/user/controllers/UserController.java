@@ -8,6 +8,9 @@ import com.login.user.services.AuthUserService;
 import com.login.user.services.TokenService;
 import com.login.user.services.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -35,11 +37,25 @@ public class UserController {
     private TokenService tokenService;
 
 
+    @Operation(description = "Busca todos os usuários no repositório")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Retorna todos os usuários"),
+        @ApiResponse(responseCode = "400", description = "Não existe nenhum usuário salvo")
+    })
     @GetMapping("/users")
     public ResponseEntity<Object> getAllUsers() {
+        Iterable<User> users = userService.getAllUsers();
+        if(users == null){
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @Operation(description = "Busca um usuário pelo login")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Retorna o usuário procurado"),
+        @ApiResponse(responseCode = "404", description = "Não existe nenhum usuário salvo com esse login")
+    })
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUser(@PathVariable String login) {
         User user = userService.getUserByLogin(login);
@@ -49,6 +65,11 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(description = "Faz o registro de um usuário no banco de dados")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Retorna o usuário criado"),
+        @ApiResponse(responseCode = "400", description = "Retorna os erros do formulário caso tenha algum campo inválido, ou retorna junto a mensagem \"E-mail já esta em uso\"")
+    })
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@Valid @RequestBody UserDto userDto, BindingResult result) {
         if (result.hasErrors()) {
@@ -65,6 +86,11 @@ public class UserController {
         }
     }
 
+    @Operation(description = "Faz o login do usuário com login e autenticação da senha")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Retorna o token que vai ser utilizado pelo usuário automaticamente"),
+        @ApiResponse(responseCode = "404", description = "Não existe nenhum usuário salvo com esse login")
+    })
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody @Valid AuthenticationDto data) {
         User user = authUser.authenticateLogin(data);
@@ -76,17 +102,32 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
     
-
+    @Operation(description = "Atualiza um usuário do repositório pelo id")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Retorna o usuário procurado"),
+        @ApiResponse(responseCode = "404", description = "Não existe nenhum usuário salvo com esse login")
+    })
     @PutMapping("/editUser/{id}")
     public ResponseEntity<Object> editUser(@PathVariable("id") UUID id, @Valid @RequestBody UserDto userDto, BindingResult result) {
-        Optional<User> updatedUser = userService.updateUser(id, userDto);
-        return updatedUser.map(user -> ResponseEntity.ok().build()).orElse(ResponseEntity.notFound().build());
+        User updatedUser = userService.updateUser(id, userDto);
+        if(updatedUser != null){
+            return ResponseEntity.ok(updatedUser);
+        }
+        return ResponseEntity.notFound().build();
     }
 
+    @Operation(description = "Deleta um usuário pelo id")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuário deletado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Não existe nenhum usuário salvo com esse login")
+    })
     @DeleteMapping("/deleteUser/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable("id") UUID id) {
         boolean deleted = userService.deleteUser(id);
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        if(deleted){
+            ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     private String validationErrors(BindingResult result) {
