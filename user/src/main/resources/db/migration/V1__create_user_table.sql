@@ -1,4 +1,4 @@
-CREATE TABLE users (
+create table users_entry (
     id UUID PRIMARY KEY,
     name VARCHAR(100),
     mail VARCHAR(100) UNIQUE,
