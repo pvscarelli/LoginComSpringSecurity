@@ -1,6 +1,6 @@
 FROM openjdk
 
-WORKDIR /home/pvscarelli/Documents/User/user
+WORKDIR /user
 
 COPY target/user-0.0.1-SNAPSHOT.jar user-app.jar
 
