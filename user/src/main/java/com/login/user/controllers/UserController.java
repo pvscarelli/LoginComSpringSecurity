@@ -98,7 +98,7 @@ public class UserController {
                 return ResponseEntity.ok(new LoginResponseDto(token));
             }
        
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.badRequest().body("Login ou senha incorretos");
     }
     
     @Operation(description = "Atualiza um usuário do repositório pelo id")
@@ -124,7 +124,7 @@ public class UserController {
     public ResponseEntity<Object> deleteUser(@PathVariable("id") UUID id) {
         boolean deleted = userService.deleteUser(id);
         if(deleted){
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("Usuário deletado com sucesso!");
         }
         return ResponseEntity.notFound().build();
     }
@@ -138,7 +138,7 @@ public class UserController {
     public ResponseEntity<Object> deleteAllUsers() {
         boolean deleted = userService.deleteAllUsers();
         if(deleted){
-           return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("Todos os usuários foram deletados com sucesso!");
         }
         return ResponseEntity.notFound().build();
     }
