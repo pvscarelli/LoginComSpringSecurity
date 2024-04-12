@@ -19,7 +19,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -45,7 +44,7 @@ public class UserController {
     public ResponseEntity<Object> getAllUsers() {
         Iterable<User> users = userService.getAllUsers();
         if(users == null){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Não encontrou nenhum usuário.");
         }
         return ResponseEntity.ok(userService.getAllUsers());
     }
@@ -77,7 +76,7 @@ public class UserController {
 
         User savedUser = userService.registerUser(userDto);
         if(savedUser != null){
-            return ResponseEntity.created(URI.create("/users/" + savedUser.getId())).build();
+            return ResponseEntity.ok().body("Usuário cadastrado com sucesso!");
         } else {
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("error", "E-mail ou login duplicado.");
@@ -110,7 +109,7 @@ public class UserController {
     public ResponseEntity<Object> editUser(@PathVariable("id") UUID id, @Valid @RequestBody UserDto userDto, BindingResult result) {
         User updatedUser = userService.updateUser(id, userDto);
         if(updatedUser != null){
-            return ResponseEntity.ok(updatedUser);
+            return ResponseEntity.ok().body("Usuário editado com sucesso!");
         }
         return ResponseEntity.notFound().build();
     }
