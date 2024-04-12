@@ -68,6 +68,7 @@ public class UserService implements UserDetailsService {
             String hashedPassword = encodePassword(user.getPassword());
             user.setPassword(hashedPassword);
             user.setRole(UserRole.ADMIN);
+            
             return usersRepository.save(user);
         }
         return null;

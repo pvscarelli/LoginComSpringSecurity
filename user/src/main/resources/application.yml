@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: user
+  datasource:
+    url: jdbc:postgresql://localhost:5432/login
+    username: postgres
+    password: copySauce
+    # url: jdbc:postgres://ec2-52-0-79-72.compute-1.amazonaws.com:5432/dfmiedic6bmbbo
+    # username: cceqwqtauwdmaz
+    # password: 08d775d29ca397ff0510b0e3d16270be7a3cf021936b899cdc2ad6c87aa029e6
+  jpa:
+    hibernate:
+      ddl-auto: update
+  flyway:
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:my-secret-key}
