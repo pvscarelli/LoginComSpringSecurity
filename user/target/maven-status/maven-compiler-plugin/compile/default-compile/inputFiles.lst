@@ -1,0 +1,14 @@
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/security/SecurityFilter.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/repositories/UsersRepository.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/security/SecurityConfig.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/dtos/UserDto.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/models/UserRole.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/services/AuthUserService.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/services/TokenService.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/controllers/UserController.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/dtos/LoginResponseDto.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/UserApplication.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/services/UserService.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/WebConfig.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/dtos/AuthenticationDto.java
+/home/pvscarelli/Documents/User/user/src/main/java/com/login/user/models/User.java
